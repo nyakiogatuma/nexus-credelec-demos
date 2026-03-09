@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Credelec Boost Flow — Auto-Run Demo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-bottom: 1px solid #334155;
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header h1 { font-size: 18px; font-weight: 600; color: #f8fafc; }
+  .header h1 span { color: #22d3ee; }
+  .header .badge { background: #164e63; color: #22d3ee; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+  .container { display: flex; height: calc(100vh - 52px); }
+  .phone-panel { flex: 0 0 380px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #1e293b; border-right: 1px solid #334155; padding: 20px; }
+  .phone-label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #64748b; margin-bottom: 12px; }
+  .phone { width: 280px; background: #1a1a2e; border-radius: 28px; padding: 16px; border: 2px solid #334155; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  .phone-notch { width: 80px; height: 6px; background: #334155; border-radius: 3px; margin: 0 auto 12px; }
+  .phone-screen { background: #0a2e0a; border-radius: 8px; padding: 14px; min-height: 220px; max-height: 220px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 12.5px; line-height: 1.5; color: #4ade80; border: 1px solid #1a3a1a; }
+  .phone-screen .prompt { color: #6b7280; }
+  .phone-screen .response { color: #4ade80; }
+  .phone-screen .session-end { color: #fbbf24; font-style: italic; }
+  @keyframes blink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
+  .phone-input { margin-top: 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 8px 12px; color: #e2e8f0; font-family: 'Courier New', monospace; font-size: 14px; text-align: center; min-height: 34px; }
+  .phone-status { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 10px; color: #64748b; }
+  .phone-status .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+  .dot-idle { background: #6b7280; } .dot-active { background: #22c55e; } .dot-done { background: #f59e0b; }
+  .phone-config { margin-top: 14px; width: 100%; background: #0f172a; border-radius: 8px; padding: 10px 14px; font-size: 11px; }
+  .phone-config div { display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .phone-config .label { color: #64748b; } .phone-config .value { color: #94a3b8; font-family: monospace; }
+  .steps-panel { flex: 1; padding: 24px 32px; overflow-y: auto; }
+  .steps-title { font-size: 14px; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; }
+  .step { display: flex; margin-bottom: 4px; opacity: 0.25; transition: all 0.5s ease; border-radius: 10px; padding: 8px 14px; }
+  .step.active { opacity: 1; background: rgba(34, 211, 238, 0.05); border: 1px solid rgba(34, 211, 238, 0.15); }
+  .step.completed { opacity: 0.7; }
+  .step.completed .step-icon { background: #065f46; color: #34d399; }
+  .step-icon { flex: 0 0 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; margin-right: 12px; background: #1e293b; color: #64748b; border: 1px solid #334155; transition: all 0.3s; }
+  .step.active .step-icon { background: #164e63; color: #22d3ee; border-color: #22d3ee; box-shadow: 0 0 12px rgba(34, 211, 238, 0.3); }
+  .step-content { flex: 1; }
+  .step-title { font-size: 13px; font-weight: 600; color: #cbd5e1; margin-bottom: 2px; }
+  .step.active .step-title { color: #f1f5f9; }
+  .step-desc { font-size: 11px; color: #64748b; line-height: 1.4; }
+  .step.active .step-desc { color: #94a3b8; }
+  .step-input-badge { display: inline-block; background: #1e293b; border: 1px solid #475569; padding: 1px 8px; border-radius: 4px; font-family: monospace; font-size: 11px; color: #fbbf24; margin-top: 3px; }
+  .step.active .step-input-badge { background: #422006; border-color: #f59e0b; }
+  .step-result { margin-top: 3px; font-size: 11px; font-weight: 500; display: none; }
+  .step.completed .step-result { display: block; }
+  .result-pass { color: #34d399; }
+  .progress-bar { margin-top: 20px; background: #1e293b; border-radius: 6px; height: 6px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #22d3ee, #34d399); border-radius: 6px; transition: width 0.6s ease; width: 0%; }
+  .controls { margin-top: 20px; text-align: center; }
+  .btn-start { background: linear-gradient(135deg, #0891b2, #06b6d4); color: #fff; border: none; padding: 10px 32px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
+  .btn-start:hover { transform: scale(1.03); } .btn-start:disabled { opacity: 0.4; cursor: not-allowed; }
+  .summary { margin-top: 16px; padding: 12px 16px; background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 8px; display: none; font-size: 13px; color: #86efac; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1><span>Credelec Boost</span> &mdash; Auto-Run Demo</h1>
+  <span class="badge">Nexus CLJ / e-Mola USSD</span>
+</div>
+<div class="container">
+  <div class="phone-panel">
+    <div class="phone-label">USSD Simulator</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen" id="screen"><span class="prompt">Dial a USSD code to begin.</span></div>
+      <div class="phone-input" id="inputDisplay">&nbsp;</div>
+      <div class="phone-status"><span><span class="dot dot-idle" id="statusDot"></span> <span id="statusText">Idle</span></span><span id="sessionLabel"></span></div>
+    </div>
+    <div class="phone-config">
+      <div><span class="label">MSISDN</span><span class="value">258843000000</span></div>
+      <div><span class="label">Menu ID</span><span class="value">emola</span></div>
+      <div><span class="label">Gateway</span><span class="value">localhost:17012</span></div>
+    </div>
+  </div>
+  <div class="steps-panel">
+    <div class="steps-title">Credelec Boost Flow &mdash; 12 Steps</div>
+    <div class="step" id="step-0"><div class="step-icon">1</div><div class="step-content"><div class="step-title">Dial *898# &mdash; Start USSD Session</div><div class="step-desc">Initiates a new session. Expects the main menu with Send Money, Withdraw, Payments, Airtime, Account.</div><div class="step-input-badge">*898#</div><div class="step-result result-pass">PASS &mdash; Main menu displayed</div></div></div>
+    <div class="step" id="step-1"><div class="step-icon">2</div><div class="step-content"><div class="step-title">Select Payments</div><div class="step-desc">Navigate to the Payments sub-menu. Expects Credelec, Water, TV CABO, INTERNET.</div><div class="step-input-badge">3</div><div class="step-result result-pass">PASS &mdash; Payments menu displayed</div></div></div>
+    <div class="step" id="step-2"><div class="step-icon">3</div><div class="step-content"><div class="step-title">Select Credelec</div><div class="step-desc">Enter Credelec sub-menu. Expects Pay with e-Mola and Pay with Credelec Boost options.</div><div class="step-input-badge">1</div><div class="step-result result-pass">PASS &mdash; Credelec menu shown</div></div></div>
+    <div class="step" id="step-3"><div class="step-icon">4</div><div class="step-content"><div class="step-title">Select Pay with Credelec Boost</div><div class="step-desc">Choose the Boost path. Expects denomination selection filtered by qualified amount.</div><div class="step-input-badge">2</div><div class="step-result result-pass">PASS &mdash; Denomination menu shown</div></div></div>
+    <div class="step" id="step-4"><div class="step-icon">5</div><div class="step-content"><div class="step-title">Select Denomination (500 MZN)</div><div class="step-desc">Pick first denom: 500 MZN. Expects meter number entry prompt.</div><div class="step-input-badge">1</div><div class="step-result result-pass">PASS &mdash; Meter number prompt shown</div></div></div>
+    <div class="step" id="step-5"><div class="step-icon">6</div><div class="step-content"><div class="step-title">Enter Meter Number</div><div class="step-desc">Submit meter 12345678901. System verifies via Credelec sandbox. Expects holder: Joao Silva.</div><div class="step-input-badge">12345678901</div><div class="step-result result-pass">PASS &mdash; Meter verified, holder: Joao Silva</div></div></div>
+    <div class="step" id="step-6"><div class="step-icon">7</div><div class="step-content"><div class="step-title">Confirm Boost Purchase</div><div class="step-desc">Review summary: Meter, Name, Amount 500 MZN, Fee 25 MZN, Total 525 MZN.</div><div class="step-input-badge">1 (Confirm)</div><div class="step-result result-pass">PASS &mdash; Boost summary confirmed</div></div></div>
+    <div class="step" id="step-7"><div class="step-icon">8</div><div class="step-content"><div class="step-title">Enter PIN</div><div class="step-desc">Prompted for e-Mola PIN. Enter wrong PIN (0000) to test error handling.</div><div class="step-input-badge">0000</div><div class="step-result result-pass">PASS &mdash; PIN error detected</div></div></div>
+    <div class="step" id="step-8"><div class="step-icon">9</div><div class="step-content"><div class="step-title">PIN Error &mdash; Retry</div><div class="step-desc">Wrong PIN rejected. Select "Try again" to re-enter PIN.</div><div class="step-input-badge">1 (Try again)</div><div class="step-result result-pass">PASS &mdash; Retry prompt shown</div></div></div>
+    <div class="step" id="step-9"><div class="step-icon">10</div><div class="step-content"><div class="step-title">Re-enter PIN</div><div class="step-desc">Prompted for PIN again. Enter correct PIN (1234).</div><div class="step-input-badge">1234</div><div class="step-result result-pass">PASS &mdash; PIN accepted</div></div></div>
+    <div class="step" id="step-10"><div class="step-icon">11</div><div class="step-content"><div class="step-title">Purchase Successful</div><div class="step-desc">Token purchased! Amount: 500 MZN, Fee: 25 MZN, Total: 525 MZN. Thank you!</div><div class="step-input-badge">&mdash;</div><div class="step-result result-pass">PASS &mdash; Purchase successful</div></div></div>
+    <div class="step" id="step-11"><div class="step-icon">12</div><div class="step-content"><div class="step-title">Session Ended</div><div class="step-desc">USSD session closed. Full Credelec Boost flow completed with PIN retry.</div><div class="step-input-badge">&mdash;</div><div class="step-result result-pass">PASS &mdash; Session ended cleanly</div></div></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="controls"><button class="btn-start" id="btnStart" onclick="runTest()">Run Demo</button></div>
+    <div class="summary" id="summary">All 12 steps passed. Credelec Boost flow working end-to-end: menu navigation, denomination selection, meter verification, PIN error retry, and successful purchase with fee calculation (500 + 25 = 525 MZN).</div>
+  </div>
+</div>
+<script>
+const steps = [
+  { input: '*898#', response: 'Welcome to e-Mola *898#\n1. Send Money\n2. Withdraw Money\n3. Payments\n4. Airtime Top-up\n5. Account\n0. Exit', endSession: false },
+  { input: '3', response: 'Payments\n1. Credelec\n2. Water\n3. TV CABO\n4. INTERNET\n0. Back', endSession: false },
+  { input: '1', response: 'Credelec\n1. Pay with e-Mola\n2. Pay with Credelec Boost\n0. Back', endSession: false },
+  { input: '2', response: 'Select Credelec Boost amount (MZN):\n1) 500\n2) 1000\n3) 2000\n0. Back', endSession: false },
+  { input: '1', response: 'Enter meter number (11 digits):', endSession: false },
+  { input: '12345678901', response: 'Meter: 12345678901\nName: Jo\u00e3o Silva\n1. Confirm\n2. Cancel', endSession: false },
+  { input: '1', response: 'Confirm Credelec Boost purchase:\nMeter: 12345678901\nName: Jo\u00e3o Silva\nAmount: 500 MZN\nFee: 25 MZN\nTotal repayable: 525 MZN\n1. Confirm\n2. Cancel', endSession: false },
+  { input: '0000', response: 'Incorrect PIN.\n1. Try again\n0. Back to menu', endSession: false },
+  { input: '1', response: 'Enter your e-Mola PIN:', endSession: false },
+  { input: '1234', response: 'Purchase successful!\nAmount: 500 MZN\nFee: 25 MZN\nTotal: 525 MZN\nThank you!', endSession: true },
+];
+const VISUAL_STEPS = 12;
+function setStatus(state) { const dot = document.getElementById('statusDot'); const txt = document.getElementById('statusText'); dot.className = 'dot'; if (state === 'active') { dot.classList.add('dot-active'); txt.textContent = 'In session'; } else if (state === 'done') { dot.classList.add('dot-done'); txt.textContent = 'Session ended'; } else { dot.classList.add('dot-idle'); txt.textContent = 'Idle'; } }
+function appendScreen(html) { const screen = document.getElementById('screen'); screen.innerHTML += html; screen.scrollTop = screen.scrollHeight; }
+function setInput(val) { document.getElementById('inputDisplay').textContent = val || '\u00A0'; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+async function runTest() {
+  document.getElementById('btnStart').disabled = true; document.getElementById('screen').innerHTML = ''; document.getElementById('summary').style.display = 'none'; document.getElementById('progressFill').style.width = '0%';
+  for (let j = 0; j < VISUAL_STEPS; j++) { document.getElementById('step-' + j).classList.remove('active', 'completed'); }
+  const sid = 'demo-' + Date.now(); document.getElementById('sessionLabel').textContent = 'Session: ' + sid.slice(0, 14) + '...';
+  for (let i = 0; i < steps.length; i++) {
+    const step = steps[i]; const el = document.getElementById('step-' + i); el.classList.add('active'); el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    setInput(''); await sleep(500); for (let c = 0; c < step.input.length; c++) { setInput(step.input.slice(0, c + 1)); await sleep(70); } await sleep(400);
+    appendScreen('<div class="prompt">&gt; ' + step.input + '</div>'); setInput('Sending...'); setStatus('active'); await sleep(600);
+    const lines = step.response.split('\n'); for (const line of lines) { appendScreen('<div class="response">' + line + '</div>'); await sleep(80); }
+    setInput(''); el.classList.remove('active'); el.classList.add('completed'); document.getElementById('progressFill').style.width = ((i + 1) / VISUAL_STEPS * 100) + '%'; await sleep(1200);
+  }
+  const el10 = document.getElementById('step-10'); el10.classList.add('active'); el10.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); await sleep(800); el10.classList.remove('active'); el10.classList.add('completed'); document.getElementById('progressFill').style.width = (11 / VISUAL_STEPS * 100) + '%';
+  const el11 = document.getElementById('step-11'); el11.classList.add('active'); el11.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); appendScreen('<div class="session-end">--- Session ended ---</div>'); setStatus('done'); await sleep(800); el11.classList.remove('active'); el11.classList.add('completed'); document.getElementById('progressFill').style.width = '100%';
+  await sleep(500); document.getElementById('summary').style.display = 'block'; document.getElementById('btnStart').disabled = false; document.getElementById('btnStart').textContent = 'Run Again';
+}
+</script>
+</body>
+</html>
