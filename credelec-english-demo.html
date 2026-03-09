@@ -1,3 +1,630 @@
-<!-- See local docs/credelec-english-demo.html for full source -->
-<!-- Credelec Boost - 12 step slide presentation with phase coloring -->
-<!-- Uploaded via GitHub API - full file at local path -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Credelec Boost — Interactive Presentation</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-bottom: 1px solid #334155;
+    padding: 10px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+  }
+  .header h1 { font-size: 17px; font-weight: 600; color: #f8fafc; }
+  .header h1 span { color: #22d3ee; }
+  .header h1 .boost-tag { color: #34d399; }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .badge { background: #164e63; color: #22d3ee; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+  .badge-boost { background: #064e3b; color: #34d399; }
+  .btn-fullscreen {
+    background: none; border: 1px solid #475569; color: #94a3b8;
+    padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-fullscreen:hover { border-color: #22d3ee; color: #22d3ee; }
+
+  .main { display: flex; height: calc(100vh - 48px); }
+
+  /* Phone panel */
+  .phone-panel {
+    flex: 0 0 360px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #1e293b; border-right: 1px solid #334155; padding: 20px;
+  }
+  .phone-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #64748b; margin-bottom: 10px; }
+  .phone {
+    width: 270px; background: #1a1a2e; border-radius: 28px; padding: 14px;
+    border: 2px solid #334155; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .phone-notch { width: 70px; height: 5px; background: #334155; border-radius: 3px; margin: 0 auto 10px; }
+  .phone-screen {
+    background: #0a2e0a; border-radius: 8px; padding: 12px;
+    min-height: 220px; max-height: 220px; overflow-y: auto;
+    font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.5;
+    color: #4ade80; border: 1px solid #1a3a1a; transition: opacity 0.3s;
+  }
+  .phone-screen .prompt { color: #6b7280; }
+  .phone-screen .response { color: #4ade80; }
+  .phone-screen .session-end { color: #fbbf24; font-style: italic; }
+
+  .phone-input {
+    margin-top: 8px; background: #0f172a; border: 1px solid #334155; border-radius: 6px;
+    padding: 7px 12px; color: #e2e8f0; font-family: 'Courier New', monospace;
+    font-size: 14px; text-align: center; min-height: 32px; transition: all 0.3s;
+  }
+  .phone-input.highlight { border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.2); }
+
+  .phone-status { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 10px; color: #64748b; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+  .dot-idle { background: #6b7280; }
+  .dot-active { background: #22c55e; }
+  .dot-done { background: #f59e0b; }
+
+  .phone-config { margin-top: 14px; width: 100%; background: #0f172a; border-radius: 8px; padding: 8px 12px; font-size: 11px; }
+  .phone-config div { display: flex; justify-content: space-between; margin-bottom: 2px; }
+  .phone-config .label { color: #64748b; }
+  .phone-config .value { color: #94a3b8; font-family: monospace; }
+
+  /* Detail panel */
+  .detail-panel { flex: 1; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+
+  .step-indicators { display: flex; align-items: center; justify-content: center; gap: 5px; padding: 14px 24px 10px; border-bottom: 1px solid #1e293b; }
+  .step-dot {
+    width: 9px; height: 9px; border-radius: 50%; background: #334155;
+    cursor: pointer; transition: all 0.3s; border: 2px solid transparent;
+  }
+  .step-dot:hover { background: #475569; }
+  .step-dot.active { background: #22d3ee; border-color: #67e8f9; box-shadow: 0 0 8px rgba(34,211,238,0.4); transform: scale(1.3); }
+  .step-dot.completed { background: #34d399; border-color: #6ee7b7; }
+  .step-dot.completed.phase-nav { background: #22d3ee; border-color: #67e8f9; }
+  .step-dot.completed.phase-boost { background: #34d399; border-color: #6ee7b7; }
+  .step-dot.completed.phase-pin { background: #f59e0b; border-color: #fbbf24; }
+  .step-dot-connector { width: 14px; height: 2px; background: #334155; transition: background 0.3s; }
+  .step-dot-connector.completed { background: #34d399; }
+  .step-dot-connector.completed.phase-nav { background: #22d3ee; }
+  .step-dot-connector.completed.phase-boost { background: #34d399; }
+  .step-dot-connector.completed.phase-pin { background: #f59e0b; }
+
+  .slide-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px 48px; position: relative; }
+  .slide { display: none; flex-direction: column; max-width: 640px; width: 100%; animation: fadeIn 0.4s ease; }
+  .slide.visible { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Welcome slide */
+  .slide-welcome { text-align: center; }
+  .slide-welcome h2 { font-size: 26px; font-weight: 700; color: #f1f5f9; margin-bottom: 12px; }
+  .slide-welcome h2 span { color: #22d3ee; }
+  .slide-welcome h2 .boost-hl { color: #34d399; }
+  .slide-welcome p { font-size: 14px; color: #94a3b8; line-height: 1.6; max-width: 500px; margin: 0 auto 16px; }
+  .slide-welcome .flow-overview {
+    display: flex; gap: 16px; justify-content: center; margin: 20px auto 16px;
+  }
+  .flow-phase {
+    background: #1e293b; border-radius: 10px; padding: 14px 18px; text-align: center;
+    border: 1px solid #334155; min-width: 150px;
+  }
+  .flow-phase .phase-num { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
+  .flow-phase .phase-title { font-size: 14px; font-weight: 600; color: #f1f5f9; }
+  .flow-phase .phase-steps { font-size: 11px; color: #64748b; margin-top: 4px; }
+  .flow-phase.phase-nav-box { border-color: rgba(34,211,238,0.3); }
+  .flow-phase.phase-nav-box .phase-num { color: #22d3ee; }
+  .flow-phase.phase-boost-box { border-color: rgba(52,211,153,0.3); }
+  .flow-phase.phase-boost-box .phase-num { color: #34d399; }
+  .flow-phase.phase-pin-box { border-color: rgba(245,158,11,0.3); }
+  .flow-phase.phase-pin-box .phase-num { color: #f59e0b; }
+  .slide-welcome .start-hint { font-size: 13px; color: #64748b; }
+  .slide-welcome .start-hint kbd {
+    background: #1e293b; border: 1px solid #475569; padding: 2px 8px;
+    border-radius: 4px; font-family: monospace; font-size: 12px; color: #94a3b8;
+  }
+
+  /* Step slides */
+  .slide-phase-tag {
+    display: inline-block; padding: 2px 10px; border-radius: 10px;
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 8px; width: fit-content;
+  }
+  .phase-tag-nav { background: rgba(34,211,238,0.1); color: #22d3ee; border: 1px solid rgba(34,211,238,0.2); }
+  .phase-tag-boost { background: rgba(52,211,153,0.1); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
+  .phase-tag-pin { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+
+  .slide-step-number { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #64748b; margin-bottom: 6px; }
+  .slide-step-title { font-size: 22px; font-weight: 700; color: #f1f5f9; margin-bottom: 14px; }
+  .slide-step-desc { font-size: 14px; color: #94a3b8; line-height: 1.7; margin-bottom: 16px; }
+  .slide-input-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 5px; }
+  .slide-input-value {
+    display: inline-block; background: #422006; border: 1px solid #f59e0b;
+    padding: 5px 14px; border-radius: 6px; font-family: 'Courier New', monospace;
+    font-size: 16px; color: #fbbf24; letter-spacing: 1px; margin-bottom: 16px;
+  }
+  .slide-expected {
+    background: rgba(34,211,238,0.06); border: 1px solid rgba(34,211,238,0.15);
+    border-radius: 8px; padding: 12px 16px; margin-bottom: 12px;
+  }
+  .slide-expected.boost-expected {
+    background: rgba(52,211,153,0.06); border-color: rgba(52,211,153,0.15);
+  }
+  .slide-expected.pin-expected {
+    background: rgba(245,158,11,0.06); border-color: rgba(245,158,11,0.15);
+  }
+  .slide-expected-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #22d3ee; margin-bottom: 5px; }
+  .boost-expected .slide-expected-label { color: #34d399; }
+  .pin-expected .slide-expected-label { color: #f59e0b; }
+  .slide-expected-text { font-size: 12px; color: #cbd5e1; line-height: 1.5; font-family: 'Courier New', monospace; white-space: pre-line; }
+  .slide-result { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+  .slide-result.pass { color: #34d399; }
+  .slide-result .check {
+    width: 20px; height: 20px; border-radius: 50%; background: #065f46;
+    display: flex; align-items: center; justify-content: center; font-size: 12px;
+  }
+
+  /* Summary slide */
+  .slide-summary { text-align: center; }
+  .slide-summary h2 { font-size: 24px; font-weight: 700; color: #34d399; margin-bottom: 14px; }
+  .slide-summary .score { font-size: 44px; font-weight: 800; color: #f1f5f9; margin-bottom: 8px; }
+  .slide-summary .score span { color: #34d399; }
+  .slide-summary p { font-size: 13px; color: #94a3b8; line-height: 1.6; max-width: 500px; margin: 0 auto; }
+  .slide-summary .detail-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+    margin-top: 20px; max-width: 520px; margin-left: auto; margin-right: auto;
+  }
+  .slide-summary .detail-item { background: #1e293b; border-radius: 8px; padding: 10px; text-align: left; }
+  .slide-summary .detail-item .di-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 3px; }
+  .slide-summary .detail-item .di-value { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+  .slide-summary .detail-item.highlight-pin { border: 1px solid rgba(245,158,11,0.3); }
+  .slide-summary .detail-item.highlight-pin .di-value { color: #f59e0b; }
+
+  /* Nav bar */
+  .nav-bar {
+    border-top: 1px solid #1e293b; padding: 12px 32px;
+    display: flex; align-items: center; justify-content: space-between; background: #0f172a;
+  }
+  .nav-info { font-size: 12px; color: #64748b; }
+  .nav-buttons { display: flex; gap: 10px; align-items: center; }
+  .btn-nav {
+    background: #1e293b; border: 1px solid #334155; color: #e2e8f0;
+    padding: 8px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px;
+  }
+  .btn-nav:hover:not(:disabled) { border-color: #475569; background: #334155; }
+  .btn-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn-nav.primary { background: linear-gradient(135deg, #0891b2, #06b6d4); border-color: transparent; color: #fff; }
+  .btn-nav.primary:hover:not(:disabled) { background: linear-gradient(135deg, #0e7490, #0891b2); }
+  .btn-nav .arrow { font-size: 16px; }
+  .nav-keys { font-size: 11px; color: #475569; }
+  .nav-keys kbd { background: #1e293b; border: 1px solid #334155; padding: 1px 6px; border-radius: 3px; font-family: monospace; font-size: 11px; color: #64748b; }
+
+  .progress-bar { height: 3px; background: #1e293b; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #22d3ee, #34d399, #f59e0b); transition: width 0.5s ease; width: 0%; }
+
+  .btn-reset {
+    background: none; border: 1px solid #475569; color: #94a3b8;
+    padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-reset:hover { border-color: #f87171; color: #f87171; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span>CREDELEC</span> <span class="boost-tag">Credelec Boost</span> &mdash; Full Flow Presentation</h1>
+  <div class="header-right">
+    <span class="badge badge-boost">Boost + PIN</span>
+    <span class="badge">Nexus CLJ / e-Mola USSD</span>
+    <button class="btn-fullscreen" onclick="toggleFullscreen()" title="Toggle fullscreen">Fullscreen</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="phone-panel">
+    <div class="phone-label">USSD Simulator</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen" id="screen"><span class="prompt">Dial a USSD code to begin.</span></div>
+      <div class="phone-input" id="inputDisplay">&nbsp;</div>
+      <div class="phone-status">
+        <span><span class="dot dot-idle" id="statusDot"></span> <span id="statusText">Idle</span></span>
+        <span id="sessionLabel"></span>
+      </div>
+    </div>
+    <div class="phone-config">
+      <div><span class="label">MSISDN</span><span class="value">258843000000</span></div>
+      <div><span class="label">Menu ID</span><span class="value">emola</span></div>
+      <div><span class="label">Gateway</span><span class="value">localhost:17012</span></div>
+    </div>
+  </div>
+
+  <div class="detail-panel">
+    <div class="step-indicators" id="stepIndicators"></div>
+
+    <div class="slide-area" id="slideArea">
+      <!-- Welcome -->
+      <div class="slide slide-welcome visible" id="slide-welcome">
+        <h2><span>CREDELEC</span> <span class="boost-hl">Boost</span> Flow</h2>
+        <p>This presentation demonstrates the complete Credelec Boost flow: loan-based electricity purchase with denomination selection, PIN verification, and wrong-PIN retry handling.</p>
+        <div class="flow-overview">
+          <div class="flow-phase phase-nav-box">
+            <div class="phase-num">Phase 1</div>
+            <div class="phase-title">Navigation</div>
+            <div class="phase-steps">Steps 1&ndash;4 &middot; Menu nav</div>
+          </div>
+          <div class="flow-phase phase-boost-box">
+            <div class="phase-num">Phase 2</div>
+            <div class="phase-title">Boost Setup</div>
+            <div class="phase-steps">Steps 5&ndash;8 &middot; Denom + Meter</div>
+          </div>
+          <div class="flow-phase phase-pin-box">
+            <div class="phase-num">Phase 3</div>
+            <div class="phase-title">PIN &amp; Purchase</div>
+            <div class="phase-steps">Steps 9&ndash;12 &middot; PIN retry</div>
+          </div>
+        </div>
+        <p class="start-hint">Click <strong>Next</strong> or press <kbd>&rarr;</kbd> to begin</p>
+      </div>
+
+      <!-- Summary -->
+      <div class="slide slide-summary" id="slide-summary">
+        <h2>All Tests Passed</h2>
+        <div class="score"><span>12</span> / 12</div>
+        <p>Credelec Boost flow working end-to-end: menu navigation, denomination selection, meter verification, PIN error retry, and successful loan-based electricity purchase.</p>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="di-label">Meter Number</div>
+            <div class="di-value">12345678901</div>
+          </div>
+          <div class="detail-item">
+            <div class="di-label">Account Holder</div>
+            <div class="di-value">Jo&atilde;o Silva</div>
+          </div>
+          <div class="detail-item">
+            <div class="di-label">Loan Amount</div>
+            <div class="di-value">500 MZN</div>
+          </div>
+          <div class="detail-item">
+            <div class="di-label">Fee</div>
+            <div class="di-value">25 MZN</div>
+          </div>
+          <div class="detail-item">
+            <div class="di-label">Total Repayable</div>
+            <div class="di-value">525 MZN</div>
+          </div>
+          <div class="detail-item highlight-pin">
+            <div class="di-label">PIN Attempts</div>
+            <div class="di-value">2 (1 failed + 1 success)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="nav-bar">
+      <div><span class="nav-info" id="navInfo">Introduction</span></div>
+      <div class="nav-buttons">
+        <button class="btn-reset" id="btnReset" onclick="resetPresentation()" style="display:none">Reset</button>
+        <button class="btn-nav" id="btnPrev" onclick="goPrev()" disabled><span class="arrow">&larr;</span> Previous</button>
+        <button class="btn-nav primary" id="btnNext" onclick="goNext()">Next <span class="arrow">&rarr;</span></button>
+        <span class="nav-keys"><kbd>&larr;</kbd> <kbd>&rarr;</kbd></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const steps = [
+  {
+    phase: 'nav', input: '*898#',
+    title: 'Dial *898# \u2014 Start Session',
+    desc: 'The user dials <strong>*898#</strong> to initiate a new USSD session. The system displays the main e-Mola menu with 5 service categories.',
+    expected: 'Main menu: Send Money, Withdraw Money, Payments, Airtime Top-up, Account, Exit',
+    result: 'Main menu displayed',
+    response: 'Welcome to e-Mola *898#\n1. Send Money\n2. Withdraw Money\n3. Payments\n4. Airtime Top-up\n5. Account\n0. Exit',
+    endSession: false
+  },
+  {
+    phase: 'nav', input: '3',
+    title: 'Select Payments',
+    desc: 'User selects option <strong>3</strong> to enter the Payments sub-menu. This shows utility payment categories including CREDELEC electricity.',
+    expected: 'Payments sub-menu: CREDELEC, Water, TV CABO, INTERNET, Back',
+    result: 'Payments menu displayed',
+    response: 'Payments\n1. Credelec\n2. Water\n3. TV CABO\n4. INTERNET\n0. Back',
+    endSession: false
+  },
+  {
+    phase: 'nav', input: '1',
+    title: 'Select CREDELEC',
+    desc: 'User selects <strong>CREDELEC</strong> to enter the electricity purchase sub-menu. Two payment paths are available: direct wallet payment and loan-based Credelec Boost.',
+    expected: 'CREDELEC menu: Pay with e-Mola, Pay with Credelec Boost, Back',
+    result: 'CREDELEC options shown',
+    response: 'CREDELEC\n1. Pay with e-Mola\n2. Pay with Credelec Boost\n0. Back',
+    endSession: false
+  },
+  {
+    phase: 'nav', input: '2',
+    title: 'Select Pay with Credelec Boost',
+    desc: 'User selects option <strong>2</strong> for <strong>Credelec Boost</strong> \u2014 the loan-based electricity purchase. The system fetches eligible denominations based on the subscriber\'s qualified amount.',
+    expected: 'Denomination selection menu filtered by eligibility',
+    result: 'Denomination menu shown',
+    response: 'Select Credelec Boost amount (MZN):\n1) 500\n2) 1000\n3) 2000\n0. Back',
+    endSession: false
+  },
+  {
+    phase: 'boost', input: '1',
+    title: 'Select CREDELEC 5 (500 MZN)',
+    desc: 'User selects the first denomination: <strong>CREDELEC 5 (500 MZN)</strong>. The system stores the selected amount and prompts for the electricity meter number.',
+    expected: 'Meter number entry prompt (11 digits)',
+    result: 'Meter prompt shown',
+    response: 'Enter meter number (11 digits):',
+    endSession: false
+  },
+  {
+    phase: 'boost', input: '12345678901',
+    title: 'Enter Meter Number',
+    desc: 'User enters meter <strong>12345678901</strong>. The system calls the CREDELEC API to verify the meter and retrieve the registered holder name.',
+    expected: 'Meter verified: holder Jo\u00e3o Silva, Confirm/Cancel',
+    result: 'Meter verified \u2014 Jo\u00e3o Silva',
+    response: 'Meter: 12345678901\nName: Jo\u00e3o Silva\n1. Confirm\n2. Cancel',
+    endSession: false
+  },
+  {
+    phase: 'boost', input: '1',
+    title: 'Confirm \u2014 Boost Purchase Summary',
+    desc: 'User confirms the meter. The system displays the full Boost purchase summary with the loan amount, fee, and total repayable amount.',
+    expected: 'Boost summary: Meter, Name, Amount 500, Fee 25, Total 525 MZN',
+    result: 'Boost summary displayed',
+    response: 'Confirm Credelec Boost purchase:\nMeter: 12345678901\nName: Jo\u00e3o Silva\nAmount: 500 MZN\nFee: 25 MZN\nTotal repayable: 525 MZN\n1. Confirm\n2. Cancel',
+    endSession: false
+  },
+  {
+    phase: 'boost', input: '1',
+    title: 'Confirm Purchase \u2014 Enter PIN',
+    desc: 'User confirms the Boost purchase. The system requires PIN verification before processing the loan-based transaction.',
+    expected: 'PIN entry prompt: "Enter your e-Mola PIN:"',
+    result: 'PIN prompt shown',
+    response: 'Enter your e-Mola PIN:',
+    endSession: false
+  },
+  {
+    phase: 'pin', input: '0000',
+    title: 'Enter Wrong PIN (0000)',
+    desc: 'User enters an <strong>incorrect PIN</strong> (0000). The system rejects it and offers a retry option. PIN attempts: 1 of 3.',
+    expected: 'PIN error with "Try again" and "Back to menu" options',
+    result: 'PIN rejected, retry offered',
+    response: 'Incorrect PIN.\n1. Try again\n0. Back to menu',
+    endSession: false
+  },
+  {
+    phase: 'pin', input: '1',
+    title: 'Try Again \u2014 Re-enter PIN',
+    desc: 'User selects option <strong>1</strong> to try again. The system re-prompts for the e-Mola PIN.',
+    expected: 'PIN re-entry prompt',
+    result: 'PIN prompt shown again',
+    response: 'Enter your e-Mola PIN:',
+    endSession: false
+  },
+  {
+    phase: 'pin', input: '1234',
+    title: 'Enter Correct PIN (1234)',
+    desc: 'User enters the <strong>correct PIN</strong> (1234). The system verifies, processes the Credelec Boost loan, purchases the electricity token, and confirms success.',
+    expected: 'Purchase successful with amount, fee, total, and thank you message',
+    result: 'Purchase successful!',
+    response: 'Purchase successful!\nAmount: 500 MZN\nFee: 25 MZN\nTotal: 525 MZN\nThank you!',
+    endSession: true
+  },
+  {
+    phase: 'pin', input: '\u2014',
+    title: 'Session Ended',
+    desc: 'The USSD session has ended. The Credelec Boost loan has been created and the electricity token purchased. Total repayable: 525 MZN (500 MZN + 25 MZN fee).',
+    expected: 'Session closed cleanly',
+    result: 'Session ended',
+    response: '',
+    endSession: true,
+    isVisual: true
+  }
+];
+
+const PHASE_MAP = { nav: 'Navigation', boost: 'Boost Setup', pin: 'PIN & Purchase' };
+const PHASE_TAG_CLASS = { nav: 'phase-tag-nav', boost: 'phase-tag-boost', pin: 'phase-tag-pin' };
+const PHASE_EXPECTED_CLASS = { nav: '', boost: 'boost-expected', pin: 'pin-expected' };
+
+const TOTAL_SLIDES = steps.length + 2;
+let currentSlide = 0;
+
+function buildSlides() {
+  const area = document.getElementById('slideArea');
+  const summaryEl = document.getElementById('slide-summary');
+  steps.forEach((step, i) => {
+    const phaseLabel = PHASE_MAP[step.phase];
+    const phaseClass = PHASE_TAG_CLASS[step.phase];
+    const expectedClass = PHASE_EXPECTED_CLASS[step.phase];
+    const div = document.createElement('div');
+    div.className = 'slide';
+    div.id = 'slide-step-' + i;
+    div.innerHTML = `
+      <div class="slide-phase-tag ${phaseClass}">${phaseLabel}</div>
+      <div class="slide-step-number">Step ${i + 1} of ${steps.length}</div>
+      <div class="slide-step-title">${step.title}</div>
+      <div class="slide-step-desc">${step.desc}</div>
+      <div class="slide-input-label">User Input</div>
+      <div class="slide-input-value">${step.input}</div>
+      <div class="slide-expected ${expectedClass}">
+        <div class="slide-expected-label">Expected Response</div>
+        <div class="slide-expected-text">${step.expected}</div>
+      </div>
+      <div class="slide-result pass">
+        <span class="check">&#10003;</span> PASS \u2014 ${step.result}
+      </div>
+    `;
+    area.insertBefore(div, summaryEl);
+  });
+}
+
+function buildDots() {
+  const container = document.getElementById('stepIndicators');
+  for (let i = 0; i < TOTAL_SLIDES; i++) {
+    if (i > 0) {
+      const conn = document.createElement('div');
+      conn.className = 'step-dot-connector';
+      conn.id = 'conn-' + i;
+      container.appendChild(conn);
+    }
+    const dot = document.createElement('div');
+    dot.className = 'step-dot' + (i === 0 ? ' active' : '');
+    dot.id = 'dot-' + i;
+    const stepIdx = i - 1;
+    if (i === 0) dot.title = 'Introduction';
+    else if (i <= steps.length) dot.title = 'Step ' + i + ': ' + steps[stepIdx].title;
+    else dot.title = 'Summary';
+    dot.onclick = () => goToSlide(i);
+    container.appendChild(dot);
+  }
+}
+
+function getSlideElement(index) {
+  if (index === 0) return document.getElementById('slide-welcome');
+  if (index <= steps.length) return document.getElementById('slide-step-' + (index - 1));
+  return document.getElementById('slide-summary');
+}
+
+function getPhaseClass(stepIdx) {
+  if (stepIdx < 0 || stepIdx >= steps.length) return '';
+  return 'phase-' + steps[stepIdx].phase;
+}
+
+function updatePhone(stepIndex) {
+  const screen = document.getElementById('screen');
+  const inputDisplay = document.getElementById('inputDisplay');
+  const statusDot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  const sessionLabel = document.getElementById('sessionLabel');
+
+  if (stepIndex < 0) {
+    screen.innerHTML = '<span class="prompt">Dial a USSD code to begin.</span>';
+    inputDisplay.innerHTML = '&nbsp;';
+    statusDot.className = 'dot dot-idle';
+    statusText.textContent = 'Idle';
+    sessionLabel.textContent = '';
+    return;
+  }
+
+  sessionLabel.textContent = 'Session: demo-boost';
+  let html = '';
+  for (let i = 0; i <= stepIndex && i < steps.length; i++) {
+    const s = steps[i];
+    if (s.isVisual) continue;
+    html += '<div class="prompt">&gt; ' + s.input + '</div>';
+    s.response.split('\n').forEach(line => {
+      html += '<div class="response">' + line + '</div>';
+    });
+    if (s.endSession) {
+      html += '<div class="session-end">--- Session ended ---</div>';
+    }
+  }
+  screen.innerHTML = html;
+  screen.scrollTop = screen.scrollHeight;
+
+  const step = steps[stepIndex];
+  if (!step.isVisual) {
+    inputDisplay.textContent = step.input;
+    inputDisplay.classList.add('highlight');
+    setTimeout(() => inputDisplay.classList.remove('highlight'), 600);
+  }
+
+  if (step.endSession) {
+    statusDot.className = 'dot dot-done';
+    statusText.textContent = 'Session ended';
+  } else {
+    statusDot.className = 'dot dot-active';
+    statusText.textContent = 'In session';
+  }
+}
+
+function updateUI() {
+  for (let i = 0; i < TOTAL_SLIDES; i++) {
+    const el = getSlideElement(i);
+    if (el) el.classList.toggle('visible', i === currentSlide);
+  }
+
+  for (let i = 0; i < TOTAL_SLIDES; i++) {
+    const dot = document.getElementById('dot-' + i);
+    dot.classList.remove('active', 'completed', 'phase-nav', 'phase-boost', 'phase-pin');
+    if (i === currentSlide) {
+      dot.classList.add('active');
+    } else if (i < currentSlide) {
+      dot.classList.add('completed');
+      const stepIdx = i - 1;
+      const pc = getPhaseClass(stepIdx);
+      if (pc) dot.classList.add(pc);
+    }
+    if (i > 0) {
+      const conn = document.getElementById('conn-' + i);
+      conn.classList.remove('completed', 'phase-nav', 'phase-boost', 'phase-pin');
+      if (i <= currentSlide) {
+        conn.classList.add('completed');
+        const stepIdx = i - 1;
+        const pc = getPhaseClass(stepIdx);
+        if (pc) conn.classList.add(pc);
+      }
+    }
+  }
+
+  if (currentSlide === 0) updatePhone(-1);
+  else if (currentSlide <= steps.length) updatePhone(currentSlide - 1);
+  else updatePhone(steps.length - 1);
+
+  const pct = (currentSlide / (TOTAL_SLIDES - 1)) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  document.getElementById('btnPrev').disabled = currentSlide === 0;
+  document.getElementById('btnNext').disabled = currentSlide === TOTAL_SLIDES - 1;
+  document.getElementById('btnReset').style.display = currentSlide === TOTAL_SLIDES - 1 ? 'inline-block' : 'none';
+
+  const info = document.getElementById('navInfo');
+  if (currentSlide === 0) info.textContent = 'Introduction';
+  else if (currentSlide <= steps.length) {
+    const s = steps[currentSlide - 1];
+    const phaseLabel = PHASE_MAP[s.phase];
+    info.textContent = 'Step ' + currentSlide + ' of ' + steps.length + ' \u00B7 ' + phaseLabel;
+  } else info.textContent = 'Summary';
+
+  const btnNext = document.getElementById('btnNext');
+  if (currentSlide === 0) btnNext.innerHTML = 'Start <span class="arrow">&rarr;</span>';
+  else if (currentSlide === TOTAL_SLIDES - 2) btnNext.innerHTML = 'Finish <span class="arrow">&rarr;</span>';
+  else btnNext.innerHTML = 'Next <span class="arrow">&rarr;</span>';
+}
+
+function goNext() { if (currentSlide < TOTAL_SLIDES - 1) { currentSlide++; updateUI(); } }
+function goPrev() { if (currentSlide > 0) { currentSlide--; updateUI(); } }
+function goToSlide(i) { if (i >= 0 && i < TOTAL_SLIDES && i !== currentSlide) { currentSlide = i; updateUI(); } }
+function resetPresentation() { currentSlide = 0; updateUI(); }
+function toggleFullscreen() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goNext(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); goPrev(); }
+  else if (e.key === 'Home') { e.preventDefault(); goToSlide(0); }
+  else if (e.key === 'End') { e.preventDefault(); goToSlide(TOTAL_SLIDES - 1); }
+  else if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+  else if (e.key === 'r' || e.key === 'R') resetPresentation();
+});
+
+buildSlides();
+buildDots();
+updateUI();
+</script>
+</body>
+</html>
