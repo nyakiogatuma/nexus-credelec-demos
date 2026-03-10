@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>CREDELEC Direct Purchase — Interactive Presentation</title>
+<title>CREDELEC Compra Directa — Apresentação Interactiva</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -482,7 +482,7 @@
 <body>
 
 <div class="header">
-  <h1><span>CREDELEC</span> Direct Purchase &mdash; Pay with e-Mola</h1>
+  <h1><span>CREDELEC</span> Compra Directa &mdash; Pagar com e-Mola</h1>
   <div class="header-right">
     <span class="badge">Nexus CLJ / e-Mola USSD</span>
     <button class="btn-fullscreen" onclick="toggleFullscreen()" title="Toggle fullscreen">Fullscreen</button>
@@ -492,15 +492,15 @@
 <div class="main">
   <!-- Phone -->
   <div class="phone-panel">
-    <div class="phone-label">USSD Simulator</div>
+    <div class="phone-label">Simulador USSD</div>
     <div class="phone">
       <div class="phone-notch"></div>
       <div class="phone-screen" id="screen">
-        <span class="prompt">Dial a USSD code to begin.</span>
+        <span class="prompt">Marque um c&oacute;digo USSD para come&ccedil;ar.</span>
       </div>
       <div class="phone-input" id="inputDisplay">&nbsp;</div>
       <div class="phone-status">
-        <span><span class="dot dot-idle" id="statusDot"></span> <span id="statusText">Idle</span></span>
+        <span><span class="dot dot-idle" id="statusDot"></span> <span id="statusText">Inactivo</span></span>
         <span id="sessionLabel"></span>
       </div>
     </div>
@@ -520,33 +520,33 @@
     <div class="slide-area" id="slideArea">
       <!-- Slide 0: Welcome -->
       <div class="slide slide-welcome visible" id="slide-welcome">
-        <h2><span>CREDELEC</span> Direct Purchase</h2>
-        <p>This interactive walkthrough demonstrates the direct electricity token purchase flow via the e-Mola USSD menu (*898#). The user pays directly from their e-Mola wallet with a free-form amount entry.</p>
-        <p class="start-hint">Click <strong>Next</strong> or press <kbd>&rarr;</kbd> to begin</p>
+        <h2><span>CREDELEC</span> Compra Directa</h2>
+        <p>Esta apresenta&ccedil;&atilde;o interactiva demonstra o fluxo de compra directa de electricidade atrav&eacute;s do menu USSD e-Mola (*898#). O utilizador paga directamente da sua carteira e-Mola.</p>
+        <p class="start-hint">Clique <strong>Seguinte</strong> ou pressione <kbd>&rarr;</kbd> para come&ccedil;ar</p>
       </div>
 
       <!-- Step slides will be injected by JS -->
 
       <!-- Final slide: Summary -->
       <div class="slide slide-summary" id="slide-summary">
-        <h2>All Tests Passed</h2>
+        <h2>Todos os Testes Passaram</h2>
         <div class="score"><span>9</span> / 9</div>
-        <p>The CREDELEC direct purchase flow is working end-to-end. Menu navigation, meter verification, charge calculation (5%), and purchase confirmation all functioning correctly.</p>
+        <p>O fluxo de compra directa CREDELEC funciona de ponta a ponta. Navega&ccedil;&atilde;o, verifica&ccedil;&atilde;o do medidor, c&aacute;lculo de taxa (5%) e confirma&ccedil;&atilde;o de compra todos a funcionar correctamente.</p>
         <div class="detail-grid">
           <div class="detail-item">
-            <div class="di-label">Meter Number</div>
+            <div class="di-label">N&uacute;mero do Medidor</div>
             <div class="di-value">12345678901</div>
           </div>
           <div class="detail-item">
-            <div class="di-label">Account Holder</div>
+            <div class="di-label">Titular</div>
             <div class="di-value">Jo&atilde;o Silva</div>
           </div>
           <div class="detail-item">
-            <div class="di-label">Amount</div>
+            <div class="di-label">Montante</div>
             <div class="di-value">500 MZN</div>
           </div>
           <div class="detail-item">
-            <div class="di-label">Total (incl. 5% fee)</div>
+            <div class="di-label">Total (incl. taxa 5%)</div>
             <div class="di-value">525 MZN</div>
           </div>
         </div>
@@ -558,15 +558,15 @@
     <!-- Navigation bar -->
     <div class="nav-bar">
       <div>
-        <span class="nav-info" id="navInfo">Introduction</span>
+        <span class="nav-info" id="navInfo">Introdu&ccedil;&atilde;o</span>
       </div>
       <div class="nav-buttons">
         <button class="btn-reset" id="btnReset" onclick="resetPresentation()" style="display:none">Reset</button>
         <button class="btn-nav" id="btnPrev" onclick="goPrev()" disabled>
-          <span class="arrow">&larr;</span> Previous
+          <span class="arrow">&larr;</span> Anterior
         </button>
         <button class="btn-nav primary" id="btnNext" onclick="goNext()">
-          Next <span class="arrow">&rarr;</span>
+          Seguinte <span class="arrow">&rarr;</span>
         </button>
         <span class="nav-keys"><kbd>&larr;</kbd> <kbd>&rarr;</kbd></span>
       </div>
@@ -578,82 +578,82 @@
 const steps = [
   {
     input: '*898#',
-    title: 'Dial *898# \u2014 Start Session',
-    desc: 'The user dials <strong>*898#</strong> to initiate a new USSD session to the e-Mola gateway. The system displays the main menu with 5 service options.',
-    expected: 'Main menu: Send Money, Withdraw Money, Payments, Airtime Top-up, Account, Exit',
-    result: 'Main menu displayed',
-    response: 'Welcome to e-Mola *898#\n1. Send Money\n2. Withdraw Money\n3. Payments\n4. Airtime Top-up\n5. Account\n0. Exit',
+    title: 'Marcar *898# \u2014 Iniciar Sess\u00e3o',
+    desc: 'O utilizador marca <strong>*898#</strong> para iniciar uma nova sess\u00e3o USSD no gateway e-Mola. O sistema apresenta o menu principal com 5 op\u00e7\u00f5es.',
+    expected: 'Menu principal: Enviar Dinheiro, Levantar Dinheiro, Pagamentos, Credito, Conta, Sair',
+    result: 'Menu principal apresentado',
+    response: 'Bem-vindo ao e-Mola *898#\n1. Enviar Dinheiro\n2. Levantar Dinheiro\n3. Pagamentos\n4. Credito\n5. Conta\n0. Sair',
     endSession: false
   },
   {
     input: '3',
-    title: 'Select Payments',
-    desc: 'User selects option <strong>3</strong> to enter the Payments sub-menu. This navigates to the payments category where utility and service payment options are listed.',
-    expected: 'Payments sub-menu: CREDELEC, Water, TV CABO, INTERNET, Back',
-    result: 'Payments menu displayed',
-    response: 'Payments\n1. Credelec\n2. Water\n3. TV CABO\n4. INTERNET\n0. Back',
+    title: 'Selecionar Pagamentos',
+    desc: 'O utilizador seleciona a op\u00e7\u00e3o <strong>3</strong> para entrar no sub-menu de Pagamentos. Apresenta as categorias de pagamento de servi\u00e7os.',
+    expected: 'Sub-menu Pagamentos: CREDELEC, AGUA, TV CABO, INTERNET, Voltar',
+    result: 'Menu Pagamentos apresentado',
+    response: 'Pagamentos\n1. Credelec\n2. AGUA\n3. TV CABO\n4. INTERNET\n0. Voltar',
     endSession: false
   },
   {
     input: '1',
-    title: 'Select CREDELEC',
-    desc: 'User selects option <strong>1</strong> to enter the CREDELEC electricity sub-menu. This shows both payment options: direct wallet payment and Credelec Boost.',
-    expected: 'CREDELEC menu: Pay with e-Mola, Pay with Credelec Boost, Back',
-    result: 'CREDELEC options shown',
-    response: 'CREDELEC\n1. Pay with e-Mola\n2. Pay with Credelec Boost\n0. Back',
+    title: 'Selecionar CREDELEC',
+    desc: 'O utilizador seleciona a op\u00e7\u00e3o <strong>1</strong> para entrar no sub-menu CREDELEC. Apresenta duas op\u00e7\u00f5es de pagamento: pagamento directo e Credelec Boost.',
+    expected: 'Menu CREDELEC: Pagar com e-Mola, Pagar com Credelec Boost, Voltar',
+    result: 'Op\u00e7\u00f5es CREDELEC apresentadas',
+    response: 'CREDELEC\n1. Pagar com e-Mola\n2. Pagar com Credelec Boost\n0. Voltar',
     endSession: false
   },
   {
     input: '1',
-    title: 'Pay with e-Mola \u2014 Enter Meter',
-    desc: 'User selects option <strong>1</strong> for direct wallet payment. The system prompts for the 11-digit electricity meter number.',
-    expected: 'Prompt asking for the 11-digit electricity meter number',
-    result: 'Meter number prompt shown',
-    response: 'Enter meter number (11 digits):',
+    title: 'Pagar com e-Mola \u2014 Introduzir Medidor',
+    desc: 'O utilizador seleciona a op\u00e7\u00e3o <strong>1</strong> para pagamento directo. O sistema solicita o n\u00famero do medidor de 11 d\u00edgitos.',
+    expected: 'Solicita\u00e7\u00e3o do n\u00famero do medidor de 11 d\u00edgitos',
+    result: 'Prompt do medidor apresentado',
+    response: 'Introduza o numero do medidor (11 digitos):',
     endSession: false
   },
   {
     input: '12345678901',
-    title: 'Enter Meter Number',
-    desc: 'User enters the 11-digit meter number <strong>12345678901</strong>. The system calls the CREDELEC API to verify the meter and retrieve the registered account holder name.',
-    expected: 'Meter verified with holder name "Jo\u00e3o Silva", Confirm/Cancel options',
-    result: 'Meter verified, holder: Jo\u00e3o Silva',
-    response: 'Meter: 12345678901\nName: Jo\u00e3o Silva\n1. Confirm\n2. Cancel',
+    title: 'Introduzir N\u00famero do Medidor',
+    desc: 'O utilizador introduz o n\u00famero do medidor <strong>12345678901</strong>. O sistema verifica o medidor e obt\u00e9m o nome do titular.',
+    expected: 'Medidor verificado com titular "Jo\u00e3o Silva", op\u00e7\u00f5es Confirmar/Cancelar',
+    result: 'Medidor verificado, titular: Jo\u00e3o Silva',
+    response: 'Medidor: 12345678901\nNome: Jo\u00e3o Silva\n1. Confirmar\n2. Cancelar',
     endSession: false
   },
   {
     input: '1',
-    title: 'Confirm Meter Details',
-    desc: 'User confirms the meter details are correct by selecting option <strong>1</strong> (Confirm). The system proceeds to the amount entry step.',
-    expected: 'Prompt to enter the purchase amount in MZN',
-    result: 'Amount entry prompt shown',
-    response: 'Enter amount (MZN):',
+    title: 'Confirmar Dados do Medidor',
+    desc: 'O utilizador confirma os dados do medidor seleccionando a op\u00e7\u00e3o <strong>1</strong> (Confirmar). O sistema solicita o montante.',
+    expected: 'Solicita\u00e7\u00e3o do montante em MZN',
+    result: 'Prompt do montante apresentado',
+    response: 'Introduza o montante (MZN):',
     endSession: false
   },
   {
     input: '500',
-    title: 'Enter Purchase Amount',
-    desc: 'User enters <strong>500 MZN</strong> as the electricity token amount. The system calculates a 5% service charge (25 MZN) and presents a summary with the total of 525 MZN for confirmation.',
-    expected: 'Summary: 500 MZN + 25 MZN fee = 525 MZN total, Confirm/Cancel',
-    result: 'Charge: 25 MZN, Total: 525 MZN',
-    response: 'Meter: 12345678901\nName: Jo\u00e3o Silva\nAmount: 500 MZN\nFee: 25.00 MZN\nTotal: 525.00 MZN\n1. Confirm\n2. Cancel',
+    title: 'Introduzir Montante',
+    desc: 'O utilizador introduz <strong>500 MZN</strong>. O sistema calcula a taxa de 5% (25 MZN) e apresenta o resumo com total de 525 MZN.',
+    expected: 'Resumo: 500 MZN + taxa 25 MZN = 525 MZN total, Confirmar/Cancelar',
+    result: 'Taxa: 25 MZN, Total: 525 MZN',
+    response: 'Medidor: 12345678901\nNome: Jo\u00e3o Silva\nMontante: 500 MZN\nTaxa: 25.00 MZN\nTotal: 525.00 MZN\n1. Confirmar\n2. Cancelar',
     endSession: false
   },
   {
     input: '1',
-    title: 'Confirm Purchase',
-    desc: 'User confirms the purchase by selecting option <strong>1</strong> (Confirm). The system processes the electricity token purchase, debits the wallet, and returns a success confirmation.',
-    expected: '"Purchase successful!" with amount, fee, total, and "Thank you!"',
-    result: 'Purchase successful, session ended',
-    response: 'Purchase successful!\nAmount: 500 MZN\nFee: 25.00 MZN\nTotal: 525.00 MZN\nThank you!',
+    title: 'Confirmar Compra',
+    desc: 'O utilizador confirma a compra seleccionando a op\u00e7\u00e3o <strong>1</strong> (Confirmar). O sistema processa a compra e debita a carteira.',
+    expected: '"Compra realizada com sucesso!" com montante, taxa, total e "Obrigado!"',
+    result: 'Compra realizada com sucesso',
+    response: 'Compra realizada com sucesso!\nValor: 500 MZN\nTaxa: 25.00 MZN\nTotal: 525.00 MZN\nObrigado!',
     endSession: true
   },
   {
     input: '\u2014',
-    title: 'Session Ended',
-    desc: 'The USSD session has ended. The electricity token has been purchased and the subscriber\'s wallet has been debited 525 MZN (500 MZN + 25 MZN fee).',
-    expected: 'Session closed cleanly',
-    result: 'Session ended',
+    title: 'Sess\u00e3o Terminada',
+    desc: 'A sess\u00e3o USSD terminou. O token de electricidade foi comprado e a carteira debitada em 525 MZN (500 MZN + taxa de 25 MZN).',
+    expected: 'Sess\u00e3o encerrada',
+    result: 'Sess\u00e3o terminada',
     response: '',
     endSession: true,
     isVisual: true
@@ -675,17 +675,17 @@ function buildSlides() {
     div.className = 'slide';
     div.id = 'slide-step-' + i;
     div.innerHTML = `
-      <div class="slide-step-number">Step ${i + 1} of ${steps.length}</div>
+      <div class="slide-step-number">Passo ${i + 1} de ${steps.length}</div>
       <div class="slide-step-title">${step.title}</div>
       <div class="slide-step-desc">${step.desc}</div>
-      <div class="slide-input-label">User Input</div>
+      <div class="slide-input-label">Input do Utilizador</div>
       <div class="slide-input-value">${step.input}</div>
       <div class="slide-expected">
-        <div class="slide-expected-label">Expected Response</div>
+        <div class="slide-expected-label">Resposta Esperada</div>
         <div class="slide-expected-text">${step.expected}</div>
       </div>
       <div class="slide-result pass">
-        <span class="check">&#10003;</span> PASS \u2014 ${step.result}
+        <span class="check">&#10003;</span> OK \u2014 ${step.result}
       </div>
     `;
     area.insertBefore(div, summaryEl);
@@ -705,7 +705,7 @@ function buildDots() {
     const dot = document.createElement('div');
     dot.className = 'step-dot' + (i === 0 ? ' active' : '');
     dot.id = 'dot-' + i;
-    dot.title = i === 0 ? 'Introduction' : (i <= steps.length ? 'Step ' + i : 'Summary');
+    dot.title = i === 0 ? 'Introdu\u00e7\u00e3o' : (i <= steps.length ? 'Passo ' + i : 'Resumo');
     dot.onclick = () => goToSlide(i);
     container.appendChild(dot);
   }
@@ -725,15 +725,15 @@ function updatePhone(stepIndex) {
   const sessionLabel = document.getElementById('sessionLabel');
 
   if (stepIndex < 0) {
-    screen.innerHTML = '<span class="prompt">Dial a USSD code to begin.</span>';
+    screen.innerHTML = '<span class="prompt">Marque um c\u00f3digo USSD para come\u00e7ar.</span>';
     inputDisplay.innerHTML = '&nbsp;';
     statusDot.className = 'dot dot-idle';
-    statusText.textContent = 'Idle';
+    statusText.textContent = 'Inactivo';
     sessionLabel.textContent = '';
     return;
   }
 
-  sessionLabel.textContent = 'Session: demo-direct';
+  sessionLabel.textContent = 'Sess\u00e3o: demo-direct';
   let html = '';
   for (let i = 0; i <= stepIndex && i < steps.length; i++) {
     const s = steps[i];
@@ -743,7 +743,7 @@ function updatePhone(stepIndex) {
       html += '<div class="response">' + line + '</div>';
     });
     if (s.endSession) {
-      html += '<div class="session-end">--- Session ended ---</div>';
+      html += '<div class="session-end">--- Sess\u00e3o terminada ---</div>';
     }
   }
   screen.innerHTML = html;
@@ -758,10 +758,10 @@ function updatePhone(stepIndex) {
 
   if (step.endSession) {
     statusDot.className = 'dot dot-done';
-    statusText.textContent = 'Session ended';
+    statusText.textContent = 'Sess\u00e3o terminada';
   } else {
     statusDot.className = 'dot dot-active';
-    statusText.textContent = 'In session';
+    statusText.textContent = 'Em sess\u00e3o';
   }
 }
 
@@ -805,18 +805,18 @@ function updateUI() {
 
   // Update nav label
   const info = document.getElementById('navInfo');
-  if (currentSlide === 0) info.textContent = 'Introduction';
-  else if (currentSlide <= steps.length) info.textContent = 'Step ' + currentSlide + ' of ' + steps.length;
-  else info.textContent = 'Summary';
+  if (currentSlide === 0) info.textContent = 'Introdu\u00e7\u00e3o';
+  else if (currentSlide <= steps.length) info.textContent = 'Passo ' + currentSlide + ' de ' + steps.length;
+  else info.textContent = 'Resumo';
 
   // Update next button label
   const btnNext = document.getElementById('btnNext');
   if (currentSlide === 0) {
-    btnNext.innerHTML = 'Start <span class="arrow">&rarr;</span>';
+    btnNext.innerHTML = 'Iniciar <span class="arrow">&rarr;</span>';
   } else if (currentSlide === TOTAL_SLIDES - 2) {
-    btnNext.innerHTML = 'Finish <span class="arrow">&rarr;</span>';
+    btnNext.innerHTML = 'Terminar <span class="arrow">&rarr;</span>';
   } else {
-    btnNext.innerHTML = 'Next <span class="arrow">&rarr;</span>';
+    btnNext.innerHTML = 'Seguinte <span class="arrow">&rarr;</span>';
   }
 }
 
